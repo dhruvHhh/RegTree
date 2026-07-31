@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment variables — NEVER commit real keys
+backend/.env
+.env
+
+# Data directories — PDFs and generated caches/trees/sessions can be large
+backend/data/raw_pdfs/
+backend/data/text_cache/
+backend/data/trees/
+backend/data/text/
+backend/data/sessions/
+
+# Test output
+backend/test_output/
+
+# Build output
+frontend/dist/
+
+# Local runtime state (not code) — the MCP server's fixed session id
+backend/.mcp_session_id
+
+# Internal build-time planning notes — kept locally, never shipped
+dev-notes/
+
+# PySpark worker-patch backups (fix_pyspark_worker.py), wherever they land
+*.orig
+
+# Optional local dev-only verification scripts (not needed to run the project)
+backend/test_rag.py
+backend/test_setup.py
+
+# IDEs
+.idea/
+.vscode/
+*.swp
