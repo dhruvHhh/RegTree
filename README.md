@@ -53,7 +53,7 @@ flowchart TD
     G --> H2[MCP server<br/>Claude Desktop]
 ```
 
-**Where PySpark actually earns its place:** it parallelizes text extraction across every uploaded document at once — real CPU-bound work. It intentionally does *not* touch the LLM calls, since those are rate-limited on their free tiers and parallelizing them would burn through quota faster, not help.
+**On PySpark:** Extraction is structured as a PySpark job to demonstrate distributed-ingestion architecture — the code would scale horizontally on a real multi-node cluster with heavier per-file compute (OCR, embeddings) and distributed storage. On a single local machine with light per-file work (plain text extraction) and results collected back to one driver, it does *not* beat a sequential loop — benchmarked and confirmed, not theoretical (see [`benchmark.py`](backend/benchmark.py)). LLM calls are deliberately left out of the parallelism, since those are rate-limited on free tiers and parallelizing them would burn quota faster, not help.
 
 ## Tech stack
 
