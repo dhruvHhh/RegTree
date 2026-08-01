@@ -31,13 +31,7 @@ RegTree lets you upload regulatory/financial PDFs, builds a hierarchical, human-
 
 ## Why "vectorless" RAG
 
-Most RAG systems chunk documents and search by embedding similarity — fast, but the retrieval has no real understanding of the document's structure, and answers aren't easily traceable back to a specific section.
-
-RegTree instead builds an actual hierarchical outline of each document (titles, section summaries, page ranges) and answers questions in two explicit steps:
-1. An LLM reads the outline and picks which section is actually relevant to the question.
-2. A second LLM call reads only that section's real text and answers.
-
-This makes every answer explainable — you always know exactly which section it came from — instead of a black-box similarity match.
+This makes it a better fit for precision-critical domains — legal, regulatory, financial — where knowing *exactly* which clause or section an answer came from matters more than raw speed, and where a plausible-but-unsourced answer isn't good enough. The tradeoff: it's slower per query than vector search and better suited to a focused set of long, structured documents than to a huge corpus of short ones — so it's the right tool when traceability is the priority, not when latency or massive scale is.
 
 ## Architecture
 
