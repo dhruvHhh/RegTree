@@ -47,10 +47,13 @@ flowchart TD
     G --> H2[MCP server<br/>Claude Desktop]
 ```
 
-**On PySpark:** Extraction is structured as a PySpark job to demonstrate distributed-ingestion architecture — the code would scale horizontally on a real multi-node cluster with heavier per-file compute (OCR, embeddings) and distributed storage. On a single local machine the payoff depends entirely on how heavy the per-file work is, which I benchmarked across three regimes rather than assumed (see [`benchmark.py`](backend/benchmark.py)):
+**On PySpark:** I structured extraction as a PySpark job to demonstrate distributed-ingestion architecture — it would scale horizontally on a real multi-node cluster with heavier per-file compute (OCR, embeddings) and distributed storage. On a single local machine, though, whether it actually helps depends entirely on how heavy the per-file work is, so I benchmarked both ends rather than assuming.
 
-- **Light PDFs (RBI circulars, ~8–20 pages):** parallel is *slower* (~0.4–0.7×) — Spark's per-task and result-serialization overhead dwarfs the tiny extraction work.
-- **Heavy PDFs (200–750 pages):** parallel wins, but the speedup climbs with file count and then **plateaus at ~2.2×**, well short of the 16 cores available (duplicating a 193-page PDF; single-file extraction = 8.4s):
+**Light PDFs (RBI circulars, ~8–20 pages) — parallel is *slower*.** Here Spark's per-task and result-serialization overhead dwarfs the tiny extraction work, so a plain sequential loop wins:
+
+![Sequential vs parallel extraction on light PDFs — Spark overhead makes it slower](docs/screenshots/pyspark_benchmark.jpg)
+
+**Heavy PDFs (200–750 pages) — parallel wins, but plateaus at ~2.2×.** When I switched to large documents the speedup climbs with file count and then flattens, well short of the 16 cores I have (below: duplicating a 193-page PDF; single-file extraction = 8.4s):
 
 | Heavy files (N) | Sequential | Parallel | Speedup |
 |---:|---:|---:|---:|
@@ -60,11 +63,9 @@ flowchart TD
 | 16 | 134.6s | 60.8s  | 2.22× |
 | 32 | 269.3s | 119.3s | 2.26× |
 
-The plateau is the interesting part: parallel time is itself roughly *linear* in N (~3.7s/file vs 8.4s sequential), because each worker pickles its extracted text back over a socket and `.collect()` gathers it all into the single driver process. That serialization/collection cost scales with N and caps the speedup — the CPU extraction parallelizes, but moving every result back to one driver is the bottleneck. Genuinely getting past ~2× would mean writing worker output straight to distributed storage instead of collecting to the driver — a real re-architecture, not a tuning tweak.
+The plateau is the part I find most interesting: parallel time is itself roughly *linear* in N (~3.7s/file vs 8.4s sequential), because each worker pickles its extracted text back over a socket and the driver `.collect()`s it all into one process. That serialization/collection cost scales with N and caps the speedup — the CPU extraction parallelizes, but moving every result back to a single driver is the bottleneck. Getting past ~2× would mean writing worker output straight to distributed storage instead of collecting to the driver — a real re-architecture, not a tuning tweak.
 
-![PySpark extraction benchmark: sequential vs parallel](docs/screenshots/pyspark_benchmark.jpg)
-
-LLM calls are deliberately left out of the parallelism, since those are rate-limited on free tiers and parallelizing them would burn quota faster, not help.
+I deliberately left the LLM calls out of the parallelism, since those are rate-limited on free tiers and parallelizing them would burn quota faster, not help.
 ## Tech stack
 
 | Layer | Tools |
