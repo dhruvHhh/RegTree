@@ -53,8 +53,11 @@ flowchart TD
     G --> H2[MCP server<br/>Claude Desktop]
 ```
 
-**On PySpark:** Extraction is structured as a PySpark job to demonstrate distributed-ingestion architecture — the code would scale horizontally on a real multi-node cluster with heavier per-file compute (OCR, embeddings) and distributed storage. On a single local machine with light per-file work (plain text extraction) and results collected back to one driver, it does *not* beat a sequential loop — benchmarked and confirmed, not theoretical (see [`benchmark.py`](backend/benchmark.py)). LLM calls are deliberately left out of the parallelism, since those are rate-limited on free tiers and parallelizing them would burn quota faster, not help.
+**On PySpark:** Extraction is structured as a PySpark job to demonstrate distributed-ingestion architecture — the code would scale horizontally on a real multi-node cluster with heavier per-file compute (OCR, embeddings) and distributed storage. On a single local machine with light per-file work (plain text extraction) and results collected back to one driver, it does *not* beat a sequential loop — benchmarked and confirmed, not theoretical:
 
+![PySpark extraction benchmark: sequential vs parallel](docs/screenshots/pyspark_benchmark.jpg)
+
+LLM calls are deliberately left out of the parallelism, since those are rate-limited on free tiers and parallelizing them would burn quota faster, not help.
 ## Tech stack
 
 | Layer | Tools |
