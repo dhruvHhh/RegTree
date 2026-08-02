@@ -47,7 +47,20 @@ flowchart TD
     G --> H2[MCP server<br/>Claude Desktop]
 ```
 
-**On PySpark:** Extraction is structured as a PySpark job to demonstrate distributed-ingestion architecture — the code would scale horizontally on a real multi-node cluster with heavier per-file compute (OCR, embeddings) and distributed storage. On a single local machine with light per-file work (plain text extraction) and results collected back to one driver, it does *not* beat a sequential loop — benchmarked and confirmed, not theoretical:
+**On PySpark:** Extraction is structured as a PySpark job to demonstrate distributed-ingestion architecture — the code would scale horizontally on a real multi-node cluster with heavier per-file compute (OCR, embeddings) and distributed storage. On a single local machine the payoff depends entirely on how heavy the per-file work is, which I benchmarked across three regimes rather than assumed (see [`benchmark.py`](backend/benchmark.py)):
+
+- **Light PDFs (RBI circulars, ~8–20 pages):** parallel is *slower* (~0.4–0.7×) — Spark's per-task and result-serialization overhead dwarfs the tiny extraction work.
+- **Heavy PDFs (200–750 pages):** parallel wins, but the speedup climbs with file count and then **plateaus at ~2.2×**, well short of the 16 cores available (duplicating a 193-page PDF; single-file extraction = 8.4s):
+
+| Heavy files (N) | Sequential | Parallel | Speedup |
+|---:|---:|---:|---:|
+| 2  | 16.8s  | 12.6s  | 1.33× |
+| 4  | 33.7s  | 19.9s  | 1.69× |
+| 8  | 67.3s  | 34.1s  | 1.97× |
+| 16 | 134.6s | 60.8s  | 2.22× |
+| 32 | 269.3s | 119.3s | 2.26× |
+
+The plateau is the interesting part: parallel time is itself roughly *linear* in N (~3.7s/file vs 8.4s sequential), because each worker pickles its extracted text back over a socket and `.collect()` gathers it all into the single driver process. That serialization/collection cost scales with N and caps the speedup — the CPU extraction parallelizes, but moving every result back to one driver is the bottleneck. Genuinely getting past ~2× would mean writing worker output straight to distributed storage instead of collecting to the driver — a real re-architecture, not a tuning tweak.
 
 ![PySpark extraction benchmark: sequential vs parallel](docs/screenshots/pyspark_benchmark.jpg)
 
