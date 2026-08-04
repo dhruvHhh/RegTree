@@ -142,7 +142,7 @@ Fully restart Claude Desktop after saving. Look for the hammer/tools icon in the
 
 ## Roadmap
 
-- **Migrate from local file storage to Supabase** (Postgres for metadata/tree JSON, Storage for PDFs) — deprioritized in favor of finishing the MCP layer first, but the natural next step for production-readiness.
+- **Move off local file storage to distributed object storage** — S3 (or any S3-compatible store: MinIO, Cloudflare R2, GCS, Azure Blob) for the PDFs and extracted text/trees, with a database (Postgres, or a managed option like Supabase) for session and document metadata. Deprioritized in favor of finishing the MCP layer first, but it's the natural next step for production-readiness, and it's also what would lift the PySpark ceiling measured above: with shared storage every Spark worker can write its own output directly instead of serializing results back through a single driver, removing the `.collect()` bottleneck that currently caps the speedup at ~2×. It's also the prerequisite for running on a real multi-node cluster, where workers can't rely on one machine's local disk.
 - Optional: scrape RBI's Master Circulars page automatically instead of manual download (blocked today by CAPTCHA protection on direct PDF links).
 
 ## Acknowledgments
