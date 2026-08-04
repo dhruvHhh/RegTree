@@ -63,7 +63,6 @@ flowchart TD
 | 16 | 134.6s | 60.8s  | 2.22× |
 | 32 | 269.3s | 119.3s | 2.26× |
 
-The plateau is the part I find most interesting: parallel time is itself roughly *linear* in N (~3.7s/file vs 8.4s sequential), because each worker pickles its extracted text back over a socket and the driver `.collect()`s it all into one process. That serialization/collection cost scales with N and caps the speedup — the CPU extraction parallelizes, but moving every result back to a single driver is the bottleneck. Getting past ~2× would mean writing worker output straight to distributed storage instead of collecting to the driver — a real re-architecture, not a tuning tweak.
 
 I deliberately left the LLM calls out of the parallelism, since those are rate-limited on free tiers and parallelizing them would burn quota faster, not help.
 ## Tech stack
