@@ -31,7 +31,7 @@ RegTree lets you upload regulatory/financial PDFs, builds a hierarchical, human-
 
 ## Why "vectorless" RAG
 
-This makes it a better fit for precision-critical domains — legal, regulatory, financial — where knowing *exactly* which clause or section an answer came from matters more than raw speed, and where a plausible-but-unsourced answer isn't good enough. The tradeoff: it's slower per query than vector search and better suited to a focused set of long, structured documents than to a huge corpus of short ones — so it's the right tool when traceability is the priority, not when latency or massive scale is.
+This makes it a better fit for precision-critical domains — legal, regulatory, financial, where knowing *exactly* which clause or section an answer came from matters more than raw speed, and where a plausible-but-unsourced answer isn't good enough. The tradeoff: it's slower per query than vector search and better suited to a focused set of long, structured documents than to a huge corpus of short ones , so it's the right tool when traceability is the priority, not when latency or massive scale is.
 
 ## Architecture
 
