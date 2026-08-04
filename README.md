@@ -142,7 +142,8 @@ Fully restart Claude Desktop after saving. Look for the hammer/tools icon in the
 
 ## Roadmap
 
-- **Move off local file storage to distributed object storage** — S3 (or any S3-compatible store: MinIO, Cloudflare R2, GCS, Azure Blob) for the PDFs and extracted text/trees, with a database (Postgres, or a managed option like Supabase) for session and document metadata. Deprioritized in favor of finishing the MCP layer first, but it's the natural next step for production-readiness, and it's also what would lift the PySpark ceiling measured above: with shared storage every Spark worker can write its own output directly instead of serializing results back through a single driver, removing the `.collect()` bottleneck that currently caps the speedup at ~2×. It's also the prerequisite for running on a real multi-node cluster, where workers can't rely on one machine's local disk.
+- **Move off local file storage to cloud storage** — S3 or any S3-compatible store for the files, with a database for metadata. The natural next step for production-readiness, and it would also let Spark workers write results directly instead of funnelling everything back through one driver.
+- **Host the MCP server remotely** — currently it runs locally over stdio, so it only works on my machine. Deploying it as a remote MCP server (FastMCP supports HTTP transport, on any container host) would let anyone add RegTree to Claude Desktop with just a URL, no local setup.
 - Optional: scrape RBI's Master Circulars page automatically instead of manual download (blocked today by CAPTCHA protection on direct PDF links).
 
 ## Acknowledgments
