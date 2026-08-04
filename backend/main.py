@@ -112,14 +112,10 @@ def _safe_doc_id(doc_id: str) -> str:
         raise HTTPException(status_code=400, detail="Invalid document id.")
 
 
-# ── GET /health ──────────────────────────────────────────────────────────────
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
-
-# ── POST /documents ──────────────────────────────────────────────────────────
 
 def _process_upload(session_id: str, uploaded: list[dict]) -> None:
     """
@@ -184,8 +180,6 @@ async def upload_documents(
     }
 
 
-# ── GET /documents ───────────────────────────────────────────────────────────
-
 @app.get("/documents")
 def list_documents(session_id: str = Depends(get_session_id)):
     """List this session's documents with their processing status."""
@@ -194,8 +188,6 @@ def list_documents(session_id: str = Depends(get_session_id)):
         for d in load_manifest(session_id)
     ]
 
-
-# ── GET /documents/{doc_id}/status ───────────────────────────────────────────
 
 @app.get("/documents/{doc_id}/status")
 def get_document_status(doc_id: str, session_id: str = Depends(get_session_id)):
@@ -211,8 +203,6 @@ def get_document_status(doc_id: str, session_id: str = Depends(get_session_id)):
     raise HTTPException(status_code=404, detail="Document not found.")
 
 
-# ── GET /documents/{doc_id}/tree ─────────────────────────────────────────────
-
 @app.get("/documents/{doc_id}/tree")
 def get_document_tree(doc_id: str, session_id: str = Depends(get_session_id)):
     """Return the section tree JSON for one of this session's documents."""
@@ -223,8 +213,6 @@ def get_document_tree(doc_id: str, session_id: str = Depends(get_session_id)):
     with open(tree_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-
-# ── POST /query ──────────────────────────────────────────────────────────────
 
 @app.post("/query", response_model=QueryResponse)
 def query(req: QueryRequest, session_id: str = Depends(get_session_id)):

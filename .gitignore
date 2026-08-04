@@ -39,6 +39,11 @@ dev-notes/
 backend/test_rag.py
 backend/test_setup.py
 
+# Local benchmarking tool, its question set, and generated results
+backend/benchmark.py
+backend/benchmark_questions.json
+backend/benchmark_results.md
+
 # IDEs
 .idea/
 .vscode/

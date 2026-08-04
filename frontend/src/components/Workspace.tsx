@@ -13,7 +13,6 @@ export default function Workspace() {
   const [readyDocs, setReadyDocs] = useState<DocumentSummary[]>([]);
   const [highlightNodeId, setHighlightNodeId] = useState<string | null>(null);
 
-  // Load the tree whenever the selected document changes.
   useEffect(() => {
     if (!docId) return;
     setTree(null);
@@ -23,7 +22,6 @@ export default function Workspace() {
       .catch((e: unknown) => setTreeError(e instanceof Error ? e.message : String(e)));
   }, [docId]);
 
-  // Ready documents for the switcher.
   useEffect(() => {
     listDocuments()
       .then((docs) => setReadyDocs(docs.filter((d) => d.status === "ready")))

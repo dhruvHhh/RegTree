@@ -19,7 +19,6 @@ export default function DocumentsPage() {
     setDocuments(await listDocuments());
   }, []);
 
-  // Initial load.
   useEffect(() => {
     refresh()
       .catch((e: unknown) => setUploadError(e instanceof Error ? e.message : String(e)))

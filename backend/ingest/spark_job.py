@@ -20,7 +20,8 @@ import threading
 import pdfplumber
 from pyspark.sql import SparkSession
 
-# Must be set before SparkSession is created (see BACKEND_SETUP.md).
+# Must be set before SparkSession is created, otherwise the JVM launches workers
+# with whatever "python" is on PATH instead of this venv's interpreter.
 os.environ["PYSPARK_PYTHON"] = sys.executable
 os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
 
