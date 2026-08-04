@@ -144,8 +144,7 @@ Fully restart Claude Desktop after saving. Look for the hammer/tools icon in the
 
 - **Move off local file storage to cloud storage** — S3 or any S3-compatible store for the files, with a database for metadata. The natural next step for production-readiness, and it would also let Spark workers write results directly instead of funnelling everything back through one driver.
 - **Host the MCP server remotely** — currently it runs locally over stdio, so it only works on my machine. Deploying it as a remote MCP server (FastMCP supports HTTP transport, on any container host) would let anyone add RegTree to Claude Desktop with just a URL, no local setup.
-- Optional: scrape RBI's Master Circulars page automatically instead of manual download (blocked today by CAPTCHA protection on direct PDF links).
 
 ## Acknowledgments
 
-Retrieval approach inspired by the [PageIndex](https://github.com/VectifyAI/PageIndex) methodology — this project is an independent implementation of the same core idea (reasoning-based, vectorless retrieval over a document's hierarchical structure), not built on their codebase.
+Retrieval approach inspired by the [PageIndex](https://github.com/VectifyAI/PageIndex) methodology, not built on their codebase.
