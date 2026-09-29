@@ -31,7 +31,9 @@ RegTree lets you upload regulatory/financial PDFs, builds a hierarchical, human-
 
 ## Why "vectorless" RAG
 
-This makes it a better fit for precision-critical domains — legal, regulatory, financial, where knowing *exactly* which clause or section an answer came from matters more than raw speed, and where a plausible-but-unsourced answer isn't good enough. The tradeoff: it's slower per query than vector search and better suited to a focused set of long, structured documents than to a huge corpus of short ones , so it's the right tool when traceability is the priority, not when latency or massive scale is.
+Most RAG systems split documents into chunks and retrieve whichever chunks are closest to the question by embedding similarity. That's fast, but it has no understanding of how a document is structured, and there's no traceable reason why a given passage was chosen. RegTree instead builds a hierarchical outline of each document (section titles, summaries, and page ranges) and answers in two steps: an LLM reads the outline and picks the relevant section(s), then a second call answers using only the text of those sections.
+
+This makes it a better fit for precision-critical domains — legal, regulatory, financial, where knowing *exactly* which clause or section an answer came from matters more than raw speed, and where a plausible-but-unsourced answer isn't good enough. The tradeoff: it's slower per query than vector search and better suited to a focused set of long, structured documents than to a huge corpus of short ones, so it's the right tool when traceability is the priority, not when latency or massive scale is.
 
 ## Architecture
 
@@ -53,7 +55,7 @@ flowchart TD
 
 ![Sequential vs parallel extraction on light PDFs — Spark overhead makes it slower](docs/screenshots/pyspark_benchmark.jpg)
 
-**Heavy PDFs (200–750 pages) — parallel wins, but plateaus at ~2.2×.** When I switched to large documents the speedup climbs with file count and then flattens, well short of the 16 cores I have (below: duplicating a 193-page PDF; single-file extraction = 8.4s):
+**Heavy PDFs (~200 pages) — parallel wins, but plateaus at ~2.2×.** When I switched to large documents the speedup climbs with file count and then flattens, well short of the 16 cores I have (below: duplicating a 193-page PDF; single-file extraction = 8.4s):
 
 | Heavy files (N) | Sequential | Parallel | Speedup |
 |---:|---:|---:|---:|
@@ -63,17 +65,19 @@ flowchart TD
 | 16 | 134.6s | 60.8s  | 2.22× |
 | 32 | 269.3s | 119.3s | 2.26× |
 
+The plateau comes from how results come back: the extraction itself runs in parallel, but every worker's text is collected back through a single driver process (`.collect()`), and that step doesn't parallelize — so it caps the speedup well below the core count. Removing it would mean workers writing directly to shared storage, which is already on the [Roadmap](#roadmap).
 
 I deliberately left the LLM calls out of the parallelism, since those are rate-limited on free tiers and parallelizing them would burn quota faster, not help.
+
 ## Tech stack
 
 | Layer | Tools |
 |---|---|
 | Distributed ingestion | PySpark (local mode), pdfplumber |
-| Tree building | Nemotron 3 Super via OpenRouter (free tier) |
-| Retrieval / Q&A | Groq — Llama 3.3 70B Versatile (free tier) |
+| Tree building | Nemotron 3 Super via OpenRouter (free tier); retries empty/invalid replies and falls back to a second free model |
+| Retrieval / Q&A | GPT-OSS 120B (via Groq, free tier) |
 | Backend API | FastAPI, session-cookie scoping (no accounts/login) |
-| Frontend | React, TypeScript, Tailwind CSS, React Bits, shadcn (Base UI) |
+| Frontend | React, TypeScript, Tailwind CSS, Aceternity UI, shadcn (Base UI) |
 | MCP layer | FastMCP — exposes the same pipeline as tools for Claude Desktop |
 | Storage | Local filesystem, JSON-based (see [Roadmap](#roadmap)) |
 
@@ -116,10 +120,7 @@ npm run dev
 ```
 
 ### MCP server (optional — Claude Desktop integration)
-```powershell
-python -m pip install fastmcp==3.3.1
-```
-Add to Claude Desktop's `claude_desktop_config.json`:
+`fastmcp` is already installed by the backend's `requirements.txt`. Add to Claude Desktop's `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
