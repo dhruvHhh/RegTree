@@ -1,14 +1,21 @@
-"""Builds a document's hierarchical section tree from its extracted text via Nemotron 3 Super (OpenRouter)."""
+"""Builds a document's hierarchical section tree from its extracted text via OpenRouter (Nemotron 3 Super, with a fallback)."""
 
 import json
 import os
+import threading
+import time
 from openai import OpenAI
 
 from storage import text_dir, trees_dir
 from .config import OPENROUTER_API_KEY
 
 _NEMOTRON_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
-_MAX_CHARS_PER_CALL = 800_000  # ~200k tokens; stay well inside the 1M context
+# A different provider, so it isn't overloaded at the same moment as Nemotron; 512k context.
+_FALLBACK_MODEL = "dots-studio/dots-3-note-preview:free"
+_RETRY_DELAYS = (3, 6)  # seconds before the 2nd and 3rd attempt on each model
+_TREE_TIME_LIMIT = 15 * 60  # seconds for one document's tree, all attempts and models combined
+# ~200k tokens: fits Nemotron's 262k-token free-tier context, but leaves limited room for the reply.
+_MAX_CHARS_PER_CALL = 800_000
 
 
 def _openrouter_client() -> OpenAI:
@@ -42,21 +49,42 @@ def _build_full_text(pages: dict[int, str]) -> str:
     return "\n\n".join(parts)
 
 
-def _call_nemotron(client: OpenAI, prompt: str) -> str:
+class _UnusableReply(Exception):
+    """A successful HTTP reply with no usable tree: empty choices/content or invalid JSON."""
+
+
+def _call_model(client: OpenAI, model: str, prompt: str) -> dict:
     response = client.chat.completions.create(
-        model=_NEMOTRON_MODEL,
+        model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=0,
     )
-    if not response.choices:
-        # Free-tier models can return empty choices on rate limit or content filter
-        raise RuntimeError(
-            f"OpenRouter returned no choices. "
-            f"Model: {response.model}, "
-            f"Usage: {response.usage}, "
-            f"Full response id: {response.id}"
-        )
-    return response.choices[0].message.content
+    # Free-tier models can return empty choices on rate limit or content filter
+    if not response.choices or not response.choices[0].message.content:
+        raise _UnusableReply(f"OpenRouter returned no choices (response id: {response.id})")
+    try:
+        return _parse_json_response(response.choices[0].message.content)
+    except json.JSONDecodeError as exc:
+        raise _UnusableReply(f"OpenRouter returned invalid JSON: {exc}") from exc
+
+
+def _generate_tree(client: OpenAI, prompt: str, label: str) -> dict:
+    """Get a tree from Nemotron, then the fallback model, retrying unusable replies with backoff."""
+    # Only unusable replies are retried here: the SDK already retries 429s, 5xx and timeouts,
+    # and auth or other API errors should fail straight away.
+    last_error = None
+    for model in (_NEMOTRON_MODEL, _FALLBACK_MODEL):
+        for attempt, delay in enumerate((0, *_RETRY_DELAYS), start=1):
+            time.sleep(delay)
+            try:
+                tree = _call_model(client, model, prompt)
+            except _UnusableReply as exc:
+                last_error = exc
+                print(f"  tree {label}: {model} attempt {attempt} failed: {exc}")
+                continue
+            print(f"  tree {label}: built with {model} on attempt {attempt}")
+            return tree
+    raise RuntimeError(f"{last_error}; gave up after retrying {_NEMOTRON_MODEL} and {_FALLBACK_MODEL}")
 
 
 def _build_prompt(doc_id: str, text_chunk: str, total_pages: int) -> str:
@@ -102,6 +130,28 @@ def _parse_json_response(raw: str) -> dict:
     return json.loads(text)
 
 
+def _tree_from_chunks(client: OpenAI, doc_id: str, chunks: list[str], total_pages: int) -> dict:
+    """Build the tree from one chunk, or merge the top-level sections of each chunk's partial tree."""
+    if len(chunks) == 1:
+        prompt = _build_prompt(doc_id, chunks[0], total_pages)
+        return _generate_tree(client, prompt, doc_id)
+
+    all_children = []
+    overall_title = None
+    for idx, chunk in enumerate(chunks, start=1):
+        prompt = _build_prompt(f"{doc_id}_part{idx}", chunk, total_pages)
+        partial = _generate_tree(client, prompt, f"{doc_id} part {idx}")
+        all_children.extend(partial.get("children", []))
+        if overall_title is None:
+            overall_title = partial.get("title", doc_id)
+
+    return {
+        "doc_id": doc_id,
+        "title": overall_title or doc_id,
+        "children": all_children,
+    }
+
+
 def build_tree(session_id: str, doc_id: str) -> dict:
     """Build, save and return the section tree for one document."""
     out_dir = trees_dir(session_id)
@@ -120,27 +170,28 @@ def build_tree(session_id: str, doc_id: str) -> dict:
         chunk_size = _MAX_CHARS_PER_CALL
         chunks = [full_text[i: i + chunk_size] for i in range(0, len(full_text), chunk_size)]
 
-    if len(chunks) == 1:
-        prompt = _build_prompt(doc_id, chunks[0], total_pages)
-        raw = _call_nemotron(client, prompt)
-        tree = _parse_json_response(raw)
-    else:
-        # Each chunk yields a partial tree; merge their top-level sections.
-        all_children = []
-        overall_title = None
-        for idx, chunk in enumerate(chunks, start=1):
-            prompt = _build_prompt(f"{doc_id}_part{idx}", chunk, total_pages)
-            raw = _call_nemotron(client, prompt)
-            partial = _parse_json_response(raw)
-            all_children.extend(partial.get("children", []))
-            if overall_title is None:
-                overall_title = partial.get("title", doc_id)
+    result = {}
 
-        tree = {
-            "doc_id": doc_id,
-            "title": overall_title or doc_id,
-            "children": all_children,
-        }
+    def work() -> None:
+        try:
+            result["tree"] = _tree_from_chunks(client, doc_id, chunks, total_pages)
+        except Exception as exc:
+            result["error"] = exc
+
+    # OpenRouter keeps slow calls alive, so no request timeout fires; run the model work on a
+    # daemon thread and stop waiting at the time limit instead.
+    worker = threading.Thread(target=work, daemon=True)
+    worker.start()
+    worker.join(_TREE_TIME_LIMIT)
+    if worker.is_alive():
+        client.close()  # aborts the in-flight request so the abandoned thread ends
+        raise TimeoutError(
+            f"Timed out after {_TREE_TIME_LIMIT // 60} minutes building the document structure "
+            f"(all attempts and models combined)."
+        )
+    if "error" in result:
+        raise result["error"]
+    tree = result["tree"]
 
     with open(tree_path, "w", encoding="utf-8") as f:
         json.dump(tree, f, indent=2, ensure_ascii=False)

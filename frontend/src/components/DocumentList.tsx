@@ -75,8 +75,8 @@ export default function DocumentList({ documents, errors, onOpen }: DocumentList
                 {failed ? (
                   <FailureMessage error={errors[doc.doc_id]} />
                 ) : (
-                  <p className="truncate text-xs text-slate-500">
-                    {doc.status === "processing" ? "Extracting text and building structure…" : "PDF document"}
+                  <p className="text-xs text-slate-500">
+                    {doc.status === "processing" ? "Extracting text and building structure — this can take a few minutes." : "PDF document"}
                   </p>
                 )}
               </div>
