@@ -32,7 +32,6 @@ function Node({ node, depth, highlightNodeId }: { node: TreeNode; depth: number;
   const [open, setOpen] = useState(true);
   const highlighted = node.node_id != null && node.node_id === highlightNodeId;
 
-  // Leaf node: no collapsible wrapper needed.
   if (!node.children?.length) {
     return (
       <li className="flex items-start gap-1.5" style={{ paddingLeft: "14px" }}>

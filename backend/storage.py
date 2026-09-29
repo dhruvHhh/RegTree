@@ -1,18 +1,4 @@
-"""
-storage.py — per-session, on-disk layout for uploaded documents.
-
-Everything a session owns lives under a single folder keyed by its session id:
-
-    data/sessions/<session_id>/
-        raw_pdfs/         uploaded PDFs, named <doc_id>.pdf
-        text/             extracted per-page text, <doc_id>.json
-        trees/            section trees, <doc_id>.json
-        documents.json    manifest mapping doc_id -> original filename
-
-This module is the single source of truth for those paths. Callers must pass
-a session id that has already been validated (see session.get_session_id); the
-paths here are joined verbatim.
-"""
+"""Per-session on-disk layout under data/sessions/<session_id>/ (ids must already be validated)."""
 
 import json
 import os
@@ -36,12 +22,7 @@ def trees_dir(session_id: str) -> str:
     return os.path.join(session_dir(session_id), "trees")
 
 
-# ── Document manifest ────────────────────────────────────────────────────────
-# doc_ids are opaque uuids, so we keep a small per-session manifest recording
-# each document's original filename and processing status. An entry is:
-#     {"doc_id", "filename", "status": "processing"|"ready"|"failed"}
-# with an extra "error" key present only while status is "failed".
-
+# doc_ids are opaque uuids, so a per-session manifest maps each to its filename and status.
 def _manifest_path(session_id: str) -> str:
     return os.path.join(session_dir(session_id), "documents.json")
 

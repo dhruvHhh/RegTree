@@ -14,7 +14,6 @@ function Shell() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile top bar — hidden on desktop where the sidebar is always visible. */}
         <header className="flex items-center gap-3 border-b border-slate-800 px-4 py-3 md:hidden">
           <button
             type="button"

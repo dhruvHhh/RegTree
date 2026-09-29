@@ -1,18 +1,4 @@
-"""
-retrieval.py
-
-Answers a question using the stored PageIndex trees and Groq (llama-3.3-70b-versatile).
-
-Two Groq calls per question:
-  1. Pick which node(s) are relevant (using titles + summaries only).
-  2. Answer the question using the actual page text for those nodes.
-
-Public API:
-    answer_question(session_id: str, question: str) -> str
-
-A session only ever loads trees and page text from its own folder, so it can
-never see another session's documents or answers.
-"""
+"""Answers questions over a session's trees with Groq (openai/gpt-oss-120b): pick sections, then answer from their text."""
 
 import json
 import os
@@ -57,7 +43,6 @@ def _flatten_nodes(tree: dict) -> list[dict]:
         for child in node.get("children", []):
             walk(child)
 
-    # top-level tree nodes are in "children"
     for child in tree.get("children", []):
         walk(child)
     return result
@@ -95,10 +80,7 @@ Respond with ONLY the JSON array. No explanation, no markdown fences.
 
 
 def _load_page_text(session_id: str, doc_id: str, start_page: int, end_page: int) -> str:
-    """
-    Load page text for the given page range from this session's text folder
-    (produced by ingest/spark_job.py).
-    """
+    """Return the text of pages start_page..end_page from the session's extracted-text file."""
     text_path = os.path.join(text_dir(session_id), f"{doc_id}.json")
     if not os.path.exists(text_path):
         return ""
@@ -106,7 +88,6 @@ def _load_page_text(session_id: str, doc_id: str, start_page: int, end_page: int
     with open(text_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Build a page_number -> text lookup from the spark_job format
     page_map = {p["page_number"]: p["text"] for p in data["pages"]}
     parts = []
     for p in range(start_page, end_page + 1):
@@ -130,15 +111,7 @@ Answer:"""
 
 
 def answer_question(session_id: str, question: str) -> dict:
-    """
-    Answer a question using only this session's documents by:
-    1. Loading the session's indexed trees.
-    2. Asking Groq to pick the relevant node(s) (titles + summaries only).
-    3. Loading the actual page text for those nodes.
-    4. Asking Groq to answer the question using that text.
-    Returns {"answer": str, "sources": [{"doc_id", "node_id", "title"}]}; sources
-    is empty when no section could be used to answer.
-    """
+    """Answer from this session's documents; returns {"answer", "sources": [{doc_id, node_id, title}]}."""
     trees = _load_trees(session_id)
     if not trees:
         return {
@@ -149,7 +122,6 @@ def answer_question(session_id: str, question: str) -> dict:
     client = _groq_client()
     tree_summary = _tree_summary_text(trees)
 
-    # --- Call 1: pick relevant nodes ---
     pick_response = client.chat.completions.create(
         model=_GROQ_MODEL,
         messages=[{"role": "user", "content": _pick_nodes_prompt(question, tree_summary)}],
@@ -168,13 +140,11 @@ def answer_question(session_id: str, question: str) -> dict:
             "sources": [],
         }
 
-    # Build a lookup of all nodes across all trees
     all_nodes: dict[tuple[str, str], dict] = {}
     for tree in trees:
         for node in _flatten_nodes(tree):
             all_nodes[(node["doc_id"], node["node_id"])] = node
 
-    # Gather page text for each picked node
     context_parts = []
     sources = []
     for pick in picks:
@@ -200,7 +170,6 @@ def answer_question(session_id: str, question: str) -> dict:
 
     context = "\n\n".join(context_parts)
 
-    # --- Call 2: answer the question ---
     answer_response = client.chat.completions.create(
         model=_GROQ_MODEL,
         messages=[{"role": "user", "content": _answer_prompt(question, context)}],

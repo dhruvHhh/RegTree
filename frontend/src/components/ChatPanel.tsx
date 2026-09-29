@@ -12,8 +12,7 @@ interface Message {
 
 interface ChatPanelProps {
   onSourceClick: (source: Source) => void;
-  // When both are provided (Home), the composer renders as a two-row card with a
-  // "Select Documents" picker. Omitted elsewhere so the plain composer is unchanged.
+  // Passed only on Home, where they switch the composer to the card with a document picker.
   readyDocuments?: DocumentSummary[];
   onSelectDocument?: (docId: string) => void;
 }
@@ -102,7 +101,6 @@ export default function ChatPanel({ onSourceClick, readyDocuments, onSelectDocum
       </div>
 
       {onSelectDocument ? (
-        // Home: two-row composer card — input on top, actions below.
         <div className="p-3">
           <div className="rounded-2xl border border-white/10 bg-[#161616] p-2 shadow-lg">
             <textarea
@@ -165,7 +163,6 @@ export default function ChatPanel({ onSourceClick, readyDocuments, onSelectDocum
           </div>
         </div>
       ) : (
-        // Workspace: plain single-row composer.
         <div className="border-t border-slate-800 p-3">
           <div className="flex items-end gap-2">
             <textarea

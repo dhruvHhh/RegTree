@@ -1,9 +1,5 @@
-// Single wrapper around the RegTree backend. Every backend call goes through
-// here so the session cookie (credentials: "include") is never forgotten and
-// raw fetch calls don't get scattered across components.
-
-// Same-origin by default: requests hit the Vite dev server under `/api` and are
-// proxied to the backend (see vite.config.ts), avoiding CORS/cookie issues.
+// Every backend call goes through request() so the session cookie is always sent.
+// `/api` is proxied to the backend by Vite (see vite.config.ts) to avoid CORS/cookie issues.
 const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
 
 export type DocStatus = "processing" | "ready" | "failed" | "unknown";

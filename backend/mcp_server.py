@@ -1,28 +1,10 @@
-"""
-mcp_server.py — MCP server exposing RegTree as tools for Claude Desktop.
-
-A second front door onto the same core logic the FastAPI backend already uses
-(storage.py, ingest/spark_job.py, rag/pageindex_builder.py, rag/retrieval.py) —
-no duplicate logic, just a different caller. Runs as its own stdio process,
-independent of `uvicorn main:app`; both can run at once against the same data.
-
-MCP clients aren't browsers and don't carry cookies, so instead of a per-request
-session cookie this server uses one persistent local session id cached in
-backend/.mcp_session_id. It is intentionally separate from any web-app session —
-documents uploaded here and via the web UI don't mix.
-
-Run:
-    .\\venv\\Scripts\\python.exe mcp_server.py
-"""
+"""MCP server exposing RegTree's pipeline as tools for Claude Desktop (stdio)."""
 
 import sys
 import os
 
-# Claude Desktop launches this script from a different working directory. Put this
-# folder on sys.path for the driver's own imports, AND on PYTHONPATH as a real env
-# var so Spark's worker subprocesses — separate OS processes that don't inherit
-# sys.path changes, only environment variables — can also resolve the ingest/rag/
-# storage packages. Must run before pyspark is imported (via ingest.spark_job).
+# Claude Desktop launches this from another cwd, and Spark workers inherit env vars but
+# not sys.path, so the backend dir goes on PYTHONPATH too. Must run before pyspark is imported.
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BACKEND_DIR)
 
@@ -40,6 +22,7 @@ from ingest.spark_job import extract_text_parallel
 from rag.pageindex_builder import build_tree
 from rag.retrieval import answer_question
 
+# MCP clients carry no cookies, so this server keeps one persistent session, separate from web ones.
 _SESSION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".mcp_session_id")
 
 
@@ -90,10 +73,8 @@ def upload_document(file_path: str) -> dict:
 
     storage.record_document(SESSION_ID, doc_id, filename)
 
-    # The Spark job prints progress to stdout; under MCP's stdio transport stdout
-    # is the JSON-RPC channel. Wrap ONLY the noisy pipeline calls so their prints
-    # go to stderr — every return and anything FastMCP writes stays outside this
-    # block, so the tool's response is never redirected.
+    # stdout is MCP's JSON-RPC channel, so the pipeline's progress prints go to stderr.
+    # Returns stay outside this block so the tool's response is never redirected.
     build_error = None
     with redirect_stdout(sys.stderr):
         _log(f"extract: start ({filename})")

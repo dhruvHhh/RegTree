@@ -28,7 +28,6 @@ export default function Workspace() {
       .catch(() => {});
   }, [docId]);
 
-  // Scroll to and briefly highlight a cited node once its tree is loaded.
   useEffect(() => {
     if (!highlightNodeId || !tree) return;
     const el = document.getElementById(treeNodeDomId(highlightNodeId));

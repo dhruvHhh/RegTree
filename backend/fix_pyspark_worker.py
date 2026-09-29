@@ -1,26 +1,5 @@
-"""Patch PySpark's worker so it flushes its socket before exiting.
-
-Why this is needed
-------------------
-On native Windows with CPython 3.12, `pyspark/worker.py` writes the task
-results into a 64 KB buffered socket writer and then simply falls off the end
-of `__main__`. The interpreter can tear the socket down during finalization
-before that buffer drains, so the ~100 bytes of results never reach the JVM.
-Spark then reads EOF and reports:
-
-    org.apache.spark.SparkException: Python worker exited unexpectedly (crashed)
-    Caused by: java.io.EOFException
-
-The worker itself raises no error -- it completes the whole protocol -- which
-is why the failure looks like a silent crash.
-
-Spark puts `python/lib/pyspark.zip` ahead of site-packages on the worker's
-PYTHONPATH, so the copy inside that zip is the one actually imported. Both
-copies are patched here.
-
-Re-run this after any `pip install`/upgrade of pyspark. It is idempotent.
-
-    python fix_pyspark_worker.py
+"""Patch PySpark's worker to flush its socket on exit; on Windows + CPython 3.12 the results
+can otherwise be lost ("Python worker exited unexpectedly"). Re-run after reinstalling pyspark.
 """
 
 import os
@@ -28,8 +7,7 @@ import shutil
 import sys
 import zipfile
 
-# Stable tag used to detect an already-applied patch (old or new); the full
-# marker written into new patches carries the project name.
+# The tag (without the project prefix) also matches patches applied by older versions.
 _PATCH_TAG = "windows worker flush fix"
 MARKER = f"regtree {_PATCH_TAG}"
 
@@ -61,7 +39,6 @@ def patch_source(src: str) -> str:
             "could not find the expected 'main(sock_file, sock_file)' line; "
             "pyspark layout may have changed"
         )
-    # Only the __main__ invocation should match, but guard against surprises.
     if src.count(ORIGINAL) != 1:
         raise RuntimeError(f"expected exactly 1 match, found {src.count(ORIGINAL)}")
     return src.replace(ORIGINAL, PATCHED)
@@ -105,6 +82,7 @@ def patch_zip(zip_path: str, member: str = "pyspark/worker.py") -> bool:
 
 
 def main() -> int:
+    """Patch worker.py and the copy inside pyspark.zip, which Spark puts first on the worker's path."""
     import pyspark
 
     pkg_dir = os.path.dirname(pyspark.__file__)

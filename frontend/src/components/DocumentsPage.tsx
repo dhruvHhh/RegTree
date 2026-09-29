@@ -25,14 +25,13 @@ export default function DocumentsPage() {
       .finally(() => setLoading(false));
   }, [refresh]);
 
-  // Poll only while something is still processing; stops once nothing is.
   useEffect(() => {
     if (!documents.some((d) => d.status === "processing")) return;
     const timer = setTimeout(() => void refresh().catch(() => {}), POLL_INTERVAL_MS);
     return () => clearTimeout(timer);
   }, [documents, refresh]);
 
-  // Fetch the error message for any failed document we don't have one for yet.
+  // The list endpoint omits error messages, so fetch them per failed document.
   useEffect(() => {
     const missing = documents.filter((d) => d.status === "failed" && !(d.doc_id in errors));
     if (missing.length === 0) return;

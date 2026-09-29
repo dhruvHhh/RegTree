@@ -1,14 +1,4 @@
-"""
-pageindex_builder.py
-
-Builds a hierarchical section tree from pre-extracted text using Nemotron 3 Ultra (OpenRouter).
-Saves the result to the session's trees folder and returns it as a dict.
-
-Text must already exist in the session's text folder (produced by ingest/spark_job.py).
-
-Public API:
-    build_tree(session_id: str, doc_id: str) -> dict
-"""
+"""Builds a document's hierarchical section tree from its extracted text via Nemotron 3 Super (OpenRouter)."""
 
 import json
 import os
@@ -30,10 +20,7 @@ def _openrouter_client() -> OpenAI:
 
 
 def _load_cached_text(session_id: str, doc_id: str) -> dict[int, str]:
-    """
-    Read pre-extracted per-page text from the session's text folder
-    (produced by ingest/spark_job.py). Returns a {page_number: text} dict.
-    """
+    """Return {page_number: text} from the session's extracted-text file."""
     text_path = os.path.join(text_dir(session_id), f"{doc_id}.json")
     if not os.path.exists(text_path):
         raise FileNotFoundError(
@@ -110,17 +97,13 @@ def _parse_json_response(raw: str) -> dict:
     """Parse JSON from the model response, stripping any accidental markdown fences."""
     text = raw.strip()
     if text.startswith("```"):
-        # Strip first and last fence line
         lines = text.splitlines()
         text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
     return json.loads(text)
 
 
 def build_tree(session_id: str, doc_id: str) -> dict:
-    """
-    Read pre-extracted text, build a hierarchical section tree via Nemotron 3 Ultra,
-    save to the session's trees folder, and return the tree dict.
-    """
+    """Build, save and return the section tree for one document."""
     out_dir = trees_dir(session_id)
     os.makedirs(out_dir, exist_ok=True)
     tree_path = os.path.join(out_dir, f"{doc_id}.json")
@@ -131,11 +114,9 @@ def build_tree(session_id: str, doc_id: str) -> dict:
 
     client = _openrouter_client()
 
-    # Split into chunks only if the document is very long
     if len(full_text) <= _MAX_CHARS_PER_CALL:
         chunks = [full_text]
     else:
-        # Split into at most a handful of equal-sized chunks
         chunk_size = _MAX_CHARS_PER_CALL
         chunks = [full_text[i: i + chunk_size] for i in range(0, len(full_text), chunk_size)]
 
@@ -144,7 +125,7 @@ def build_tree(session_id: str, doc_id: str) -> dict:
         raw = _call_nemotron(client, prompt)
         tree = _parse_json_response(raw)
     else:
-        # Multi-chunk: ask model to produce partial tree per chunk, merge top-level children
+        # Each chunk yields a partial tree; merge their top-level sections.
         all_children = []
         overall_title = None
         for idx, chunk in enumerate(chunks, start=1):

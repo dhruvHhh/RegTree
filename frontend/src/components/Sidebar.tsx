@@ -16,7 +16,6 @@ function navClass({ isActive }: { isActive: boolean }) {
 export default function Sidebar({ open, onClose }: SidebarProps) {
   return (
     <>
-      {/* Backdrop — mobile only, when the drawer is open. */}
       {open && <div className="fixed inset-0 z-30 bg-black/60 md:hidden" onClick={onClose} />}
 
       <aside

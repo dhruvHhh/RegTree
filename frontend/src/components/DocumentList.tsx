@@ -4,7 +4,7 @@ import type { DocumentSummary, DocStatus } from "../api";
 
 interface DocumentListProps {
   documents: DocumentSummary[];
-  errors: Record<string, string>; // doc_id -> error message, for failed docs
+  errors: Record<string, string>;
   onOpen: (docId: string) => void;
 }
 

@@ -1,30 +1,10 @@
-"""
-main.py — FastAPI server for the RegTree RAG pipeline.
-
-Documents are scoped per anonymous session (see session.py). There is no login;
-a random session id in an HttpOnly cookie separates one user's documents from
-another's.
-
-Endpoints:
-    GET  /health                     → health check
-    POST /documents                  → upload PDF(s); processing runs in background
-    GET  /documents                  → list this session's documents + status
-    GET  /documents/{doc_id}/status  → processing status of one document
-    GET  /documents/{doc_id}/tree    → this document's section tree
-    POST /query                      → answer a question over this session's docs
-
-Run from backend/:
-    .\\venv\\Scripts\\python.exe -m uvicorn main:app --reload
-"""
+"""FastAPI server for RegTree; documents are scoped per anonymous session cookie."""
 
 import os
 import sys
 
-# Allow launching uvicorn from any working directory: put this folder on sys.path
-# for the driver's own imports, AND on PYTHONPATH as a real env var so Spark's
-# worker subprocesses — which don't inherit sys.path changes, only environment
-# variables — can also resolve the ingest/rag/storage packages. Must run before
-# pyspark is imported (via ingest.spark_job).
+# Spark workers are separate processes that inherit env vars but not sys.path, so the
+# backend dir goes on PYTHONPATH too. Must run before pyspark is imported.
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BACKEND_DIR)
 
@@ -62,10 +42,8 @@ app.add_middleware(
 )
 
 
-# FastAPI's OpenAPI 3.1 output describes file uploads with `contentMediaType`,
-# which the bundled Swagger UI shows as a plain text box instead of a file
-# picker. Rewriting those to `format: binary` restores the "Choose Files"
-# widget without changing runtime behaviour.
+# Swagger UI shows OpenAPI 3.1 `contentMediaType` uploads as a text box; `format: binary`
+# restores the file picker.
 def _use_binary_format(node) -> None:
     if isinstance(node, dict):
         if node.get("type") == "string" and node.get("contentMediaType") == "application/octet-stream":
@@ -118,15 +96,7 @@ def health():
 
 
 def _process_upload(session_id: str, uploaded: list[dict]) -> None:
-    """
-    Extract text (one Spark job for the batch) then build each document's tree,
-    recording the outcome in the manifest. Runs in the background after the
-    upload response has been sent, so any failure must be captured here rather
-    than surfacing to a caller who is no longer waiting.
-
-    Failures are handled per file: a single bad PDF is marked "failed" while the
-    rest of the batch continues to "ready".
-    """
+    """Extract text for the batch, build each tree, and record per-file status."""
     try:
         errors = extract_text_parallel(session_id, uploaded)
     except Exception as exc:
@@ -153,15 +123,11 @@ async def upload_documents(
     files: list[UploadFile] = File(...),
     session_id: str = Depends(get_session_id),
 ):
-    """
-    Upload one or more PDFs. Each file is saved under this session's raw_pdfs
-    folder and recorded as "processing"; text extraction and tree-building then
-    run in the background. Returns immediately with the processing documents.
-    """
+    """Save uploaded PDFs as "processing" and process them in the background."""
     raw_dir = raw_pdfs_dir(session_id)
     os.makedirs(raw_dir, exist_ok=True)
 
-    uploaded = []  # [{doc_id, filename, pdf_path}]
+    uploaded = []
     for f in files:
         doc_id = str(uuid.uuid4())
         pdf_path = os.path.join(raw_dir, f"{doc_id}.pdf")

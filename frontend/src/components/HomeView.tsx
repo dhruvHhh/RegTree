@@ -16,7 +16,6 @@ export default function HomeView() {
   const uploadZoneRef = useRef<UploadZoneHandle>(null);
   const howItWorksRef = useRef<HTMLElement>(null);
 
-  // Ready documents for the composer's "Select Documents" picker.
   useEffect(() => {
     listDocuments()
       .then((docs) => setReadyDocs(docs.filter((d) => d.status === "ready")))
