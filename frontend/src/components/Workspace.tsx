@@ -19,7 +19,7 @@ export default function Workspace() {
     setTreeError(null);
     getDocumentTree(docId)
       .then(setTree)
-      .catch((e: unknown) => setTreeError(e instanceof Error ? e.message : String(e)));
+      .catch(() => setTreeError("Couldn't load this document's structure — please try again."));
   }, [docId]);
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function Workspace() {
       <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <aside className="min-h-0 overflow-y-auto border-r border-slate-800 bg-slate-900/40 p-4">
           {treeError ? (
-            <p className="text-sm text-red-400">Could not load document structure: {treeError}</p>
+            <p className="text-sm text-red-400">{treeError}</p>
           ) : !tree ? (
             <p className="text-sm text-slate-500">Loading structure…</p>
           ) : (

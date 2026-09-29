@@ -21,7 +21,7 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     refresh()
-      .catch((e: unknown) => setUploadError(e instanceof Error ? e.message : String(e)))
+      .catch(() => setUploadError("Couldn't load your documents — please refresh the page."))
       .finally(() => setLoading(false));
   }, [refresh]);
 
@@ -56,8 +56,8 @@ export default function DocumentsPage() {
       try {
         await uploadDocuments(files);
         await refresh();
-      } catch (e: unknown) {
-        setUploadError(e instanceof Error ? e.message : String(e));
+      } catch {
+        setUploadError("Upload failed — please try again.");
       }
     },
     [refresh],
@@ -73,10 +73,12 @@ export default function DocumentsPage() {
       <div className="mx-auto max-w-3xl px-4 py-8">
         <header className="mb-6">
           <h1 className="text-2xl font-semibold text-slate-100">Documents</h1>
-          <p className="mt-1 text-sm text-slate-400">Manage the PDFs uploaded in this session.</p>
+          <p className="mt-1 text-sm text-slate-400">
+            PDFs you've added in this browser session. There's no account, so they aren't saved long-term.
+          </p>
         </header>
 
-        <UploadZone compact onUpload={handleUpload} />
+        <UploadZone onUpload={handleUpload} />
         {uploadError && <p className="mt-3 text-sm text-red-400">{uploadError}</p>}
 
         <div className="mt-6 mb-3">

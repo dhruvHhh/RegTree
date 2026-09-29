@@ -38,10 +38,10 @@ export default function ChatPanel({ onSourceClick, readyDocuments, onSelectDocum
     try {
       const result = await askQuestion(question);
       setMessages((prev) => [...prev, { role: "assistant", text: result.answer, sources: result.sources }]);
-    } catch (e: unknown) {
+    } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: `Sorry, something went wrong: ${e instanceof Error ? e.message : String(e)}` },
+        { role: "assistant", text: "Sorry, I couldn't get an answer just now — please try again." },
       ]);
     } finally {
       setThinking(false);

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FileText } from "lucide-react";
 import type { DocumentSummary, DocStatus } from "../api";
 
@@ -24,17 +25,42 @@ function StatusBadge({ status }: { status: DocStatus }) {
   );
 }
 
+// Backend errors are often raw Spark/Python traces, so keep them behind a toggle.
+function FailureMessage({ error }: { error?: string }) {
+  const [showDetails, setShowDetails] = useState(false);
+  return (
+    <>
+      <p className="text-xs text-red-400">
+        This document couldn't be processed — please try uploading it again.
+        {error && (
+          <button
+            type="button"
+            onClick={() => setShowDetails((v) => !v)}
+            className="ml-2 text-slate-500 underline-offset-2 hover:text-slate-300 hover:underline"
+          >
+            {showDetails ? "Hide details" : "Details"}
+          </button>
+        )}
+      </p>
+      {showDetails && error && (
+        <pre className="mt-2 max-h-40 overflow-auto rounded-md bg-black/40 p-2 text-[11px] leading-relaxed whitespace-pre-wrap text-slate-400">
+          {error}
+        </pre>
+      )}
+    </>
+  );
+}
+
 export default function DocumentList({ documents, errors, onOpen }: DocumentListProps) {
   return (
     <ul className="divide-y divide-white/5">
       {documents.map((doc) => {
         const ready = doc.status === "ready";
-        const error = doc.status === "failed" ? errors[doc.doc_id] : undefined;
+        const failed = doc.status === "failed";
         return (
           <li
             key={doc.doc_id}
             onClick={() => ready && onOpen(doc.doc_id)}
-            title={error}
             className={[
               "animate-fade-in group flex items-center justify-between gap-4 px-4 py-3.5 transition-colors",
               ready ? "cursor-pointer hover:bg-white/5" : "cursor-default",
@@ -46,8 +72,8 @@ export default function DocumentList({ documents, errors, onOpen }: DocumentList
               </span>
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-slate-100">{doc.filename}</p>
-                {error ? (
-                  <p className="truncate text-xs text-red-400">{error}</p>
+                {failed ? (
+                  <FailureMessage error={errors[doc.doc_id]} />
                 ) : (
                   <p className="truncate text-xs text-slate-500">
                     {doc.status === "processing" ? "Extracting text and building structure…" : "PDF document"}
