@@ -33,7 +33,7 @@ function Node({ node, depth, highlightNodeId }: { node: TreeNode; depth: number;
   const highlighted = node.node_id != null && node.node_id === highlightNodeId;
 
   // Leaf node: no collapsible wrapper needed.
-  if (node.children.length === 0) {
+  if (!node.children?.length) {
     return (
       <li className="flex items-start gap-1.5" style={{ paddingLeft: "14px" }}>
         <span className="inline-block w-[14px] shrink-0" />
@@ -87,7 +87,7 @@ export default function TreeView({ tree, highlightNodeId }: TreeViewProps) {
   return (
     <div>
       <h2 className="mb-3 text-sm font-semibold text-slate-200">{tree.title || "Document structure"}</h2>
-      {tree.children.length === 0 ? (
+      {!tree.children?.length ? (
         <p className="text-sm text-slate-500">No sections were detected in this document.</p>
       ) : (
         <ul>
