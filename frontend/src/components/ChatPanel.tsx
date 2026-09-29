@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowUp, Plus } from "lucide-react";
+import Markdown from "react-markdown";
 import { askQuestion } from "../api";
 import type { DocumentSummary, Source } from "../api";
 
@@ -65,7 +66,14 @@ export default function ChatPanel({ onSourceClick, readyDocuments, onSelectDocum
                   : "border border-slate-700 bg-slate-800 text-slate-100",
               ].join(" ")}
             >
-              <p className="whitespace-pre-wrap">{msg.text}</p>
+              {msg.role === "assistant" ? (
+                // Tailwind's reset strips list styling, so restore it for Markdown answers.
+                <div className="space-y-2 [&_li]:mt-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5">
+                  <Markdown>{msg.text}</Markdown>
+                </div>
+              ) : (
+                <p className="whitespace-pre-wrap">{msg.text}</p>
+              )}
               {msg.sources && msg.sources.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {msg.sources.map((s, j) => (
