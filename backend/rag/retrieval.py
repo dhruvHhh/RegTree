@@ -21,7 +21,7 @@ from groq import Groq
 from storage import text_dir, trees_dir
 from .config import GROQ_API_KEY
 
-_GROQ_MODEL = "llama-3.3-70b-versatile"
+_GROQ_MODEL = "openai/gpt-oss-120b"
 
 
 def _groq_client() -> Groq:
