@@ -1,4 +1,4 @@
-"""Builds a document's hierarchical section tree from its extracted text via OpenRouter (Nemotron 3 Super, with a fallback)."""
+"""Builds a document's hierarchical section tree from its extracted text via OpenRouter (Nemotron 3.5 Super VL, with a fallback)."""
 
 import json
 import os
@@ -9,12 +9,15 @@ from openai import NotFoundError, OpenAI
 from storage import text_dir, trees_dir
 from .config import OPENROUTER_API_KEY
 
-_NEMOTRON_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
-# A different provider, so it isn't overloaded at the same moment as Nemotron; 512k context.
-_FALLBACK_MODEL = "dots-studio/dots-3-note-preview:free"
+# Tried in order. The last is a different provider, so it isn't overloaded at the same moment
+# as Nemotron; 512k context.
+_MODELS = (
+    "nvidia/nemotron-3.5-super-vl:free",
+    "dots-studio/dots-3-note-preview:free",
+)
 _RETRY_DELAYS = (3, 6)  # seconds before the 2nd and 3rd attempt on each model
 _TREE_TIME_LIMIT = 15 * 60  # seconds for one document's tree, all attempts and models combined
-# ~200k tokens: fits Nemotron's 262k-token free-tier context, but leaves limited room for the reply.
+# ~200k tokens: well inside Nemotron 3.5 Super VL's 1M-token context, with room for the reply.
 _MAX_CHARS_PER_CALL = 800_000
 
 
@@ -69,12 +72,12 @@ def _call_model(client: OpenAI, model: str, prompt: str) -> dict:
 
 
 def _generate_tree(client: OpenAI, prompt: str, label: str) -> dict:
-    """Get a tree from Nemotron, then the fallback model, retrying unusable replies with backoff."""
+    """Get a tree from each model in turn, retrying unusable replies with backoff."""
     # Only unusable replies are retried here: the SDK already retries 429s, 5xx and timeouts,
     # and auth or other API errors should fail straight away. A 404 means the model was
     # withdrawn, so it skips straight to the next one.
     last_error = None
-    for model in (_NEMOTRON_MODEL, _FALLBACK_MODEL):
+    for model in _MODELS:
         for attempt, delay in enumerate((0, *_RETRY_DELAYS), start=1):
             time.sleep(delay)
             try:
@@ -89,7 +92,7 @@ def _generate_tree(client: OpenAI, prompt: str, label: str) -> dict:
                 break
             print(f"  tree {label}: built with {model} on attempt {attempt}")
             return tree
-    raise RuntimeError(f"{last_error}; gave up after retrying {_NEMOTRON_MODEL} and {_FALLBACK_MODEL}")
+    raise RuntimeError(f"{last_error}; gave up after retrying {', '.join(_MODELS)}")
 
 
 def _build_prompt(doc_id: str, text_chunk: str, total_pages: int) -> str:
