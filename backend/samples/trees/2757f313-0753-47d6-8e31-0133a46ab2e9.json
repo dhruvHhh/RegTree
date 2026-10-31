@@ -1,0 +1,175 @@
+{
+  "doc_id": "2757f313-0753-47d6-8e31-0133a46ab2e9",
+  "title": "Master Circular - Housing Finance for UCBs",
+  "children": [
+    {
+      "node_id": "1",
+      "title": "General",
+      "summary": "This section provides the background and purpose of the circular, emphasizing the role of primary (urban) co-operative banks in housing finance and the importance of priority sector lending.",
+      "start_page": 3,
+      "end_page": 3,
+      "children": []
+    },
+    {
+      "node_id": "2",
+      "title": "Eligible Category of Borrowers",
+      "summary": "Defines the categories of borrowers eligible for housing finance, including individuals, co-operative housing societies, housing boards, and owners seeking extension or repairs.",
+      "start_page": 3,
+      "end_page": 3,
+      "children": []
+    },
+    {
+      "node_id": "3",
+      "title": "Eligibility for Housing Finance",
+      "summary": "Outlines the purposes for which finance is eligible, such as construction, purchase, repairs, alterations, and specific schemes for scheduled castes/tribes, slum clearance, and community facilities.",
+      "start_page": 3,
+      "end_page": 4,
+      "children": []
+    },
+    {
+      "node_id": "4",
+      "title": "Terms and Conditions for Housing Loans",
+      "summary": "Details the terms and conditions for housing loans, including maximum loan amounts, margins, interest rates, foreclosure charges, penal charges, security, loan period, graduated instalments, and aggregate exposure limits.",
+      "start_page": 4,
+      "end_page": 7,
+      "children": [
+        {
+          "node_id": "4.1",
+          "title": "Maximum Loan Amount and Margin",
+          "summary": "Specifies that UCBs can determine margins and loan amounts based on commercial judgment, with tier-based ceilings ranging from ₹60 lakh to ₹3 crore, subject to prudential exposure limits.",
+          "start_page": 4,
+          "end_page": 4,
+          "children": []
+        },
+        {
+          "node_id": "4.2",
+          "title": "Interest rate, foreclosure charges / prepayment penalty and reset of floating interest rate on EMI based housing loans",
+          "summary": "Covers interest rate determination, prohibition of foreclosure charges on floating rate loans, and policies for resetting floating interest rates on EMI-based loans.",
+          "start_page": 4,
+          "end_page": 5,
+          "children": []
+        },
+        {
+          "node_id": "4.3",
+          "title": "Penal Charges",
+          "summary": "Guidelines on penal charges for loan contract non-compliance, specifying they should be treated as penal charges rather than penal interest, in accordance with fair lending practices.",
+          "start_page": 5,
+          "end_page": 5,
+          "children": []
+        },
+        {
+          "node_id": "4.4",
+          "title": "Key Facts Statement (KFS) for Loans and Advances",
+          "summary": "Requires UCBs to comply with the Key Facts Statement guidelines for loans and advances as per the relevant RBI circular.",
+          "start_page": 5,
+          "end_page": 5,
+          "children": []
+        },
+        {
+          "node_id": "4.5",
+          "title": "Security",
+          "summary": "Details the security requirements for housing loans, including mortgage of property, government guarantee, or other acceptable collateral, and procedures for release of documents upon repayment.",
+          "start_page": 5,
+          "end_page": 5,
+          "children": []
+        },
+        {
+          "node_id": "4.6",
+          "title": "Period of Loan",
+          "summary": "Specifies that housing loans may be repayable within a maximum period of 20 years, including moratorium or repayment holiday options.",
+          "start_page": 5,
+          "end_page": 6,
+          "children": []
+        },
+        {
+          "node_id": "4.7",
+          "title": "Graduated Instalments",
+          "summary": "Allows banks to fix instalments on a graduated basis, with lower initial payments increasing over time, aligning with expected income growth of the borrower.",
+          "start_page": 6,
+          "end_page": 6,
+          "children": []
+        },
+        {
+          "node_id": "4.8",
+          "title": "Aggregate Limit for Housing Finance",
+          "summary": "Prescribes aggregate exposure limits for residential mortgages (25% of total loans) and real estate sector (5% of total loans), with classifications for CRE and CRE-RH segments.",
+          "start_page": 6,
+          "end_page": 7,
+          "children": []
+        }
+      ]
+    },
+    {
+      "node_id": "5",
+      "title": "Additional / Supplementary Finance",
+      "summary": "Provides guidelines for additional or supplementary finance for alterations, additions, repairs, and for borrowers who have raised funds from other sources, including limits and security requirements.",
+      "start_page": 7,
+      "end_page": 7,
+      "children": []
+    },
+    {
+      "node_id": "6",
+      "title": "Lending to Housing Boards",
+      "summary": "Allows UCBs to extend loans to housing boards within their states, with interest rates at the bank's discretion and subject to prompt recovery from beneficiaries.",
+      "start_page": 7,
+      "end_page": 7,
+      "children": []
+    },
+    {
+      "node_id": "7",
+      "title": "Advances to Builders / Contractors",
+      "summary": "Restrains banks from normally lending to builders/contracts, but allows limited financing for small construction projects without advance payments, subject to strict scrutiny and valuation norms.",
+      "start_page": 7,
+      "end_page": 8,
+      "children": []
+    },
+    {
+      "node_id": "8",
+      "title": "Housing Loans under Priority Sector",
+      "summary": "Directs that loans to the housing sector eligible for priority sector classification shall follow the Master Directions on Priority Sector Lending.",
+      "start_page": 8,
+      "end_page": 8,
+      "children": []
+    },
+    {
+      "node_id": "9",
+      "title": "Precautions",
+      "summary": "Advises precautions against fraud, such as multiple financing against the same property, and requires compliance with court directions on disclosure of charges and unauthorized construction.",
+      "start_page": 9,
+      "end_page": 9,
+      "children": []
+    },
+    {
+      "node_id": "10",
+      "title": "National Building Code",
+      "summary": "Recommends adherence to the National Building Code of India for safe and orderly building construction, and suggests boards consider incorporating these standards into loan policies.",
+      "start_page": 9,
+      "end_page": 10,
+      "children": []
+    },
+    {
+      "node_id": "Annex 1",
+      "title": "Annex 1",
+      "summary": "Provides definitions and classification guidelines for Commercial Real Estate (CRE) exposure, including illustrative examples and simultaneous classification rules.",
+      "start_page": 11,
+      "end_page": 14,
+      "children": []
+    },
+    {
+      "node_id": "Annex 2",
+      "title": "Annex 2",
+      "summary": "Outlines procedures for ensuring loans are for authorized structures, including obtaining sanctioned plans, affidavits, and architect certifications, per Delhi High Court directions.",
+      "start_page": 15,
+      "end_page": 15,
+      "children": []
+    },
+    {
+      "node_id": "Annex 3",
+      "title": "Annex 3",
+      "summary": "Lists the circulars consolidated in the master circular and other related circulars from which housing finance instructions have been drawn.",
+      "start_page": 16,
+      "end_page": 20,
+      "children": []
+    }
+  ]
+}

@@ -1,0 +1,276 @@
+{
+  "doc_id": "0f7c8158-ab2c-4a4d-ad8f-7f50fa7b8d88",
+  "title": "Master Circular - Guarantees, Co-acceptances & Letters of Credit - UCBs",
+  "children": [
+    {
+      "node_id": "1",
+      "title": "Guarantees",
+      "summary": "This section outlines the guidelines for Urban Co-operative Banks (UCBs) regarding the issuance of guarantees. It covers broad guidelines, purpose, maturity, volume, and the distinction between secured and unsecured guarantees. It also addresses deferred payment guarantees, guarantees for commodities under selective credit controls, safeguards in issuance, procedures for immediate settlement of payment under bank guarantees, handling delays in obtaining certified copies of judgments, and correspondence with government departments.",
+      "start_page": 3,
+      "end_page": 7,
+      "children": [
+        {
+          "node_id": "1.1",
+          "title": "Issue of Guarantees",
+          "summary": "This subsection provides broad guidelines on the issuance of guarantees by UCBs, emphasizing the need to extend guarantees within restricted limits to avoid impairing financial position. It details the purpose, maturity (short-term, up to ten years), volume (limited to 10% of total owned resources), and the preference for secured guarantees over unsecured ones.",
+          "start_page": 3,
+          "end_page": 4,
+          "children": [
+            {
+              "node_id": "1.1.1",
+              "title": "Broad Guidelines",
+              "summary": "UCBs should extend guarantees within restricted limits so that their financial position is not impaired, following broad guidelines as indicated in the subsequent paragraphs.",
+              "start_page": 3,
+              "end_page": 3,
+              "children": []
+            },
+            {
+              "node_id": "1.1.2",
+              "title": "Purpose",
+              "summary": "As a general rule, banks may provide only financial guarantees and not performance guarantees, though scheduled banks may issue performance guarantees subject to due caution.",
+              "start_page": 3,
+              "end_page": 3,
+              "children": []
+            },
+            {
+              "node_id": "1.1.3",
+              "title": "Maturity",
+              "summary": "UCBs should confine their guarantees to relatively short-term maturities, not exceeding ten years in any case.",
+              "start_page": 3,
+              "end_page": 3,
+              "children": []
+            },
+            {
+              "node_id": "1.1.4",
+              "title": "Volume",
+              "summary": "The total volume of guarantee obligations outstanding at any time may not exceed 10% of the total owned resources of the bank, with unsecured guarantees limited to 25% of owned funds or 25% of total guarantees, whichever is less.",
+              "start_page": 3,
+              "end_page": 3,
+              "children": []
+            },
+            {
+              "node_id": "1.1.5",
+              "title": "Secured Guarantees",
+              "summary": "Banks should preferably issue secured guarantees, which are made on the security of assets (including cash margin) whose market value is at least the amount of the contingent liability, or fully covered by counter guarantees from specified entities.",
+              "start_page": 3,
+              "end_page": 3,
+              "children": []
+            },
+            {
+              "node_id": "1.1.6",
+              "title": "Unsecured Guarantees",
+              "summary": "Banks should avoid undue concentration of unsecured guarantee commitments, and their Board should fix suitable proportions for issuance to individual constituents relative to total obligations and shareholdings.",
+              "start_page": 4,
+              "end_page": 4,
+              "children": []
+            },
+            {
+              "node_id": "1.1.7",
+              "title": "Deferred Payment Guarantees",
+              "summary": "Banks should generally provide deferred payment guarantees backed by adequate tangible securities or counter guarantees, and for acquisition of capital assets, ensure total credit facilities do not exceed exposure ceilings and assess profitability and cash flows.",
+              "start_page": 4,
+              "end_page": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "node_id": "1.2",
+          "title": "Guarantees in respect of Commodities covered under Selective Credit Controls",
+          "summary": "UCBs should not issue guarantees for payment of customs duty or import duty on essential commodities without taking a cash margin equivalent to at least half of the amount payable under the guarantee.",
+          "start_page": 4,
+          "end_page": 4,
+          "children": []
+        },
+        {
+          "node_id": "1.3",
+          "title": "Safeguards in Issuance of Guarantees",
+          "summary": "This section outlines safeguards for issuing financial guarantees, including appraising proposals with diligence, using serially numbered security forms, requiring two signatures for guarantees above a cut-off point, and ensuring proper scrutiny for customers without credit facilities.",
+          "start_page": 5,
+          "end_page": 5,
+          "children": []
+        },
+        {
+          "node_id": "1.4",
+          "title": "Payment under Bank Guarantees - Immediate Settlement of Cases",
+          "summary": "UCBs should honour bank guarantees promptly upon invocation, as delays or non-payment have been subject to strictures by courts. The section includes a Supreme Court judgment extract emphasizing that bank commitments must be honoured free from court interference except in cases of fraud or irretrievable injustice.",
+          "start_page": 6,
+          "end_page": 6,
+          "children": []
+        },
+        {
+          "node_id": "1.5",
+          "title": "Delay in Obtaining Certified Copies of Judgments",
+          "summary": "To address difficulties in executing judgments, banks should not insist on certified copies if the bank was a party to the proceeding and the judgment is known, or if a certified copy of the minutes of the order is provided by the court.",
+          "start_page": 6,
+          "end_page": 6,
+          "children": []
+        },
+        {
+          "node_id": "1.6",
+          "title": "Correspondence with Government Departments",
+          "summary": "Banks should ensure that correspondence relating to guarantees in the name of the President of India is addressed to the concerned Government Ministry/Department, not the President's Secretariat, to avoid inconvenience.",
+          "start_page": 7,
+          "end_page": 7,
+          "children": []
+        }
+      ]
+    },
+    {
+      "node_id": "2",
+      "title": "Co-acceptance of Bills",
+      "summary": "This section addresses the co-acceptance of bills by banks, highlighting irregularities such as accommodation bills and the need for safeguards. It emphasizes that co-acceptance should be limited to customers enjoying other limits, only genuine trade bills should be co-accepted, and proper records and returns should be maintained.",
+      "start_page": 7,
+      "end_page": 8,
+      "children": [
+        {
+          "node_id": "2.1",
+          "title": "Irregularities in Co-acceptance of Bills",
+          "summary": "Banks have co-accepted bills that turn out to be accommodation bills drawn by sister concerns without genuine trade transactions, leading to non-honour and difficulty in recovery. Also, particulars of co-acceptance are sometimes not recorded in books, leading to verification issues.",
+          "start_page": 7,
+          "end_page": 7,
+          "children": []
+        },
+        {
+          "node_id": "2.2",
+          "title": "Safeguards",
+          "summary": "Safeguards include ascertaining the need for co-acceptance limits, extending only to customers with other limits, ensuring genuine trade bills and receipt of goods, verifying invoice valuation, avoiding house/accommodation bills, requiring joint signatures beyond limits, maintaining proper records, and prescribing periodical returns.",
+          "start_page": 8,
+          "end_page": 8,
+          "children": []
+        }
+      ]
+    },
+    {
+      "node_id": "3",
+      "title": "Letters of Credit (LCs)",
+      "summary": "This section provides guidelines for UCBs on letters of credit, including guidelines for granting LC facilities, restrictions on LCs for commodities under selective credit controls, safeguards in opening LCs, and immediate settlement of claims. It emphasizes proper scrutiny, security forms, signatures, and ensuring borrowers have arrangements for retiring bills.",
+      "start_page": 8,
+      "end_page": 10,
+      "children": [
+        {
+          "node_id": "3.1",
+          "title": "Guidelines for Grant of LCs Facility",
+          "summary": "UCBs should not normally grant LC facilities to parties with only nominal current accounts. For such borrowers, banks should ascertain reasons from existing bankers, make proper enquiries, prescribe suitable margin, and obtain other security.",
+          "start_page": 8,
+          "end_page": 8,
+          "children": []
+        },
+        {
+          "node_id": "3.2",
+          "title": "LCs for Commodities Covered under Selective Credit Controls",
+          "summary": "There is no restriction on opening LCs for import of essential items, but banks are not permitted to open inland LCs that enable other banks to discount usance bills under the LCs.",
+          "start_page": 9,
+          "end_page": 9,
+          "children": []
+        },
+        {
+          "node_id": "3.3",
+          "title": "Safeguards in Opening of LCs",
+          "summary": "Safeguards include issuing LCs in security forms, using two authorised signatures for large LCs, ensuring LC amounts are proportional to genuine requirements, verifying raw material inventory levels, opening LCs within consortium limits, ensuring funds are tied up for capital goods, and not using working capital limits for capital assets. It also covers negotiation of bills under restricted LCs and adherence to RBI/RCS/CRCS instructions.",
+          "start_page": 9,
+          "end_page": 10,
+          "children": []
+        },
+        {
+          "node_id": "3.4",
+          "title": "Payment under LCs - Immediate Settlement of Claims",
+          "summary": "Banks must honour LCs promptly to maintain credibility, as unauthorised or fraudulent LCs can affect the payment mechanism. Banks should take action against officials and constituents involved in criminal conspiracy.",
+          "start_page": 10,
+          "end_page": 10,
+          "children": []
+        }
+      ]
+    },
+    {
+      "node_id": "4",
+      "title": "Other Common Guidelines",
+      "summary": "This section covers additional guidelines for UCBs, including credit exposure norms and statutory restrictions on non-fund based limits, maintaining systems for recording off-balance sheet transactions, preventing unauthorised LCs, monitoring accounts where non-funded limits become funded, treating parked debts as part of principal operating account for NPA identification, strengthening information backup about borrowers, adopting Asset-Liability Management systems, and ensuring compliance with due diligence guidelines for non-resident guarantees.",
+      "start_page": 11,
+      "end_page": 12,
+      "children": [
+        {
+          "node_id": "4.1",
+          "title": "Credit Exposure Norms and Statutory / Other Restrictions on Non-fund Based Limits",
+          "summary": "UCBs must strictly observe exposure norms and statutory/other restrictions for non-fund based limits (e.g., LCs, Guarantees, Co-acceptances) as detailed in the relevant Master Circular, including ceilings for total credit exposure, unsecured guarantees, advances to directors, relatives, and nominal members.",
+          "start_page": 11,
+          "end_page": 11,
+          "children": []
+        },
+        {
+          "node_id": "4.2",
+          "title": "Systems for Recording Off-balance Sheet Transactions",
+          "summary": "Banks should ensure that systems for recording details of off-balance sheet transactions are properly followed by all branches, records are periodically balanced, and internal inspectors verify and comment on them.",
+          "start_page": 11,
+          "end_page": 11,
+          "children": []
+        },
+        {
+          "node_id": "4.3",
+          "title": "Unauthorised LCs",
+          "summary": "Banks should ensure that unauthorised LCs are not issued.",
+          "start_page": 11,
+          "end_page": 11,
+          "children": []
+        },
+        {
+          "node_id": "4.4",
+          "title": "Monitoring Funded Limits",
+          "summary": "Banks must lay down clear instructions for loan accounts where non-funded facilities become funded due to devolvement of bills under LCs or invocation of guarantees, ensuring close monitoring and that goods remain under bank's control/hypothecation, especially where malafides are suspected. For import LCs, immediate submission of customs copy of Bill of Entry is required.",
+          "start_page": 11,
+          "end_page": 11,
+          "children": []
+        },
+        {
+          "node_id": "4.5",
+          "title": "Parking of Devolved LCs and Invoked Guarantees",
+          "summary": "Banks should not park dues from devolved LCs or invoked guarantees in a separate account that is not a regular sanctioned facility, as this hinders NPA identification. The outstanding balance should be treated as part of the borrower's principal operating account for prudential norms.",
+          "start_page": 12,
+          "end_page": 12,
+          "children": []
+        },
+        {
+          "node_id": "4.6",
+          "title": "Asset-Liability Management (ALM) Systems",
+          "summary": "UCBs are exposed to various risks and should adopt effective Asset-Liability Management (ALM) systems to address liquidity, interest rate, and currency risks, following RBI guidelines.",
+          "start_page": 12,
+          "end_page": 12,
+          "children": []
+        },
+        {
+          "node_id": "4.8",
+          "title": "Due Diligence for Non-resident Guarantees",
+          "summary": "UCBs categorized as Category - I Authorised Dealer Banks must ensure compliance with A.P. (DIR Series) Circular No. 18 dated October 04, 2024 regarding due diligence in relation to non-resident guarantees availed by persons resident in India.",
+          "start_page": 12,
+          "end_page": 12,
+          "children": []
+        }
+      ]
+    },
+    {
+      "node_id": "Annex",
+      "title": "Annex",
+      "summary": "The Annex lists the circulars consolidated in this Master Circular, including their numbers, dates, and subjects, as well as other circulars from which instructions relating to Guarantees, Co-acceptances, and LCs have been consolidated.",
+      "start_page": 13,
+      "end_page": 14,
+      "children": [
+        {
+          "node_id": "A",
+          "title": "List of Circulars consolidated in the Master Circular",
+          "summary": "This part lists 12 circulars consolidated in the Master Circular, with details such as circular number, date, and subject, covering topics like discounting of bills, frauds, bank guarantees, selective credit controls, and payment under bank guarantees.",
+          "start_page": 13,
+          "end_page": 13,
+          "children": []
+        },
+        {
+          "node_id": "B",
+          "title": "List of Other Circulars from which instructions relating to Guarantees, Co-acceptances and LCs have also been consolidated",
+          "summary": "This part lists 9 other circulars that contain instructions consolidated in the Master Circular, covering topics such as lending under consortium arrangements, ALM guidelines, prudential norms, maximum limits on advances, and guidelines for assessment of working capital requirements.",
+          "start_page": 14,
+          "end_page": 14,
+          "children": []
+        }
+      ]
+    }
+  ]
+}

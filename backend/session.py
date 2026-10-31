@@ -27,5 +27,7 @@ def get_session_id(request: Request, response: Response) -> str:
             value=session_id,
             httponly=True,
             samesite="lax",
+            # Behind a TLS proxy this needs uvicorn's --forwarded-allow-ips (see the Dockerfile).
+            secure=request.url.scheme == "https",
         )
     return session_id

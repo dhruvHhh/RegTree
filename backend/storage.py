@@ -2,8 +2,12 @@
 
 import json
 import os
+import shutil
 
-_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+_BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+_DATA_DIR = os.path.join(_BACKEND_DIR, "data")
+# Same layout as a session directory, with documents.json listing each sample's doc_id and filename.
+_SAMPLES_DIR = os.path.join(_BACKEND_DIR, "samples")
 
 
 def session_dir(session_id: str) -> str:
@@ -63,3 +67,29 @@ def set_document_status(
                 entry["error"] = error
             break
     _write_manifest(session_id, manifest)
+
+
+def add_sample_documents(session_id: str) -> list[dict]:
+    """Copy the bundled samples into this session as ready, skipping any it already has."""
+    with open(os.path.join(_SAMPLES_DIR, "documents.json"), "r", encoding="utf-8") as f:
+        samples = json.load(f)
+
+    manifest = load_manifest(session_id)
+    existing = {entry["doc_id"] for entry in manifest}
+    for sample in samples:
+        doc_id = sample["doc_id"]
+        if doc_id in existing:
+            continue
+        for folder, dest_dir, ext in (
+            ("raw_pdfs", raw_pdfs_dir(session_id), ".pdf"),
+            ("text", text_dir(session_id), ".json"),
+            ("trees", trees_dir(session_id), ".json"),
+        ):
+            os.makedirs(dest_dir, exist_ok=True)
+            shutil.copyfile(
+                os.path.join(_SAMPLES_DIR, folder, f"{doc_id}{ext}"),
+                os.path.join(dest_dir, f"{doc_id}{ext}"),
+            )
+        manifest.append({"doc_id": doc_id, "filename": sample["filename"], "status": "ready"})
+    _write_manifest(session_id, manifest)
+    return [{**sample, "status": "ready"} for sample in samples]

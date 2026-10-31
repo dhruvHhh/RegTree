@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileSearch, Info, ListTree, Upload } from "lucide-react";
-import { listDocuments, uploadDocuments } from "../api";
+import { FileSearch, FileText, Info, ListTree, Upload } from "lucide-react";
+import { listDocuments, loadSampleDocuments, uploadDocuments } from "../api";
 import type { DocumentSummary, Source } from "../api";
 import UploadZone from "./UploadZone";
 import type { UploadZoneHandle } from "./UploadZone";
@@ -13,6 +13,7 @@ export default function HomeView() {
   const navigate = useNavigate();
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [readyDocs, setReadyDocs] = useState<DocumentSummary[]>([]);
+  const [loadingSamples, setLoadingSamples] = useState(false);
   const uploadZoneRef = useRef<UploadZoneHandle>(null);
   const howItWorksRef = useRef<HTMLElement>(null);
 
@@ -35,6 +36,18 @@ export default function HomeView() {
     },
     [navigate],
   );
+
+  async function handleTrySamples() {
+    setUploadError(null);
+    setLoadingSamples(true);
+    try {
+      await loadSampleDocuments();
+      navigate("/documents");
+    } catch {
+      setUploadError("Couldn't load the sample documents — please try again.");
+      setLoadingSamples(false);
+    }
+  }
 
   // Home has no tree to scroll; open the cited document's workspace instead.
   function handleSourceClick(source: Source) {
@@ -67,6 +80,15 @@ export default function HomeView() {
             >
               <Upload size={16} />
               Upload a document
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleTrySamples()}
+              disabled={loadingSamples}
+              className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-5 py-2.5 text-sm font-medium text-slate-200 transition-colors hover:border-white/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <FileText size={16} />
+              Try sample documents
             </button>
             <button
               type="button"

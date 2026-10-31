@@ -1,0 +1,17 @@
+.git
+dev-notes
+docs
+
+**/venv
+**/.venv
+**/node_modules
+**/__pycache__
+**/.env
+frontend/dist
+
+# Runtime data and local-only files; the bundled samples live in backend/samples.
+backend/data
+backend/fix_pyspark_worker.py
+backend/.mcp_session_id
+backend/test_*.py
+backend/benchmark*

@@ -1,5 +1,6 @@
 // Every backend call goes through request() so the session cookie is always sent.
-// `/api` is proxied to the backend by Vite (see vite.config.ts) to avoid CORS/cookie issues.
+// `/api` is same-origin: FastAPI serves the built app in production, and in dev Vite proxies
+// it to localhost:8000 (see vite.config.ts).
 const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
 
 export type DocStatus = "processing" | "ready" | "failed" | "unknown";
@@ -59,6 +60,10 @@ export function uploadDocuments(files: File[]): Promise<{ documents: DocumentSum
   const form = new FormData();
   for (const file of files) form.append("files", file);
   return request("/documents", { method: "POST", body: form });
+}
+
+export function loadSampleDocuments(): Promise<{ documents: DocumentSummary[] }> {
+  return request("/samples", { method: "POST" });
 }
 
 export function getDocumentStatus(docId: string): Promise<DocumentStatus> {
