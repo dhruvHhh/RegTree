@@ -4,7 +4,7 @@ import json
 import os
 import threading
 import time
-from openai import OpenAI
+from openai import NotFoundError, OpenAI
 
 from storage import text_dir, trees_dir
 from .config import OPENROUTER_API_KEY
@@ -71,7 +71,8 @@ def _call_model(client: OpenAI, model: str, prompt: str) -> dict:
 def _generate_tree(client: OpenAI, prompt: str, label: str) -> dict:
     """Get a tree from Nemotron, then the fallback model, retrying unusable replies with backoff."""
     # Only unusable replies are retried here: the SDK already retries 429s, 5xx and timeouts,
-    # and auth or other API errors should fail straight away.
+    # and auth or other API errors should fail straight away. A 404 means the model was
+    # withdrawn, so it skips straight to the next one.
     last_error = None
     for model in (_NEMOTRON_MODEL, _FALLBACK_MODEL):
         for attempt, delay in enumerate((0, *_RETRY_DELAYS), start=1):
@@ -82,6 +83,10 @@ def _generate_tree(client: OpenAI, prompt: str, label: str) -> dict:
                 last_error = exc
                 print(f"  tree {label}: {model} attempt {attempt} failed: {exc}")
                 continue
+            except NotFoundError as exc:
+                last_error = exc
+                print(f"  tree {label}: {model} unavailable: {exc}")
+                break
             print(f"  tree {label}: built with {model} on attempt {attempt}")
             return tree
     raise RuntimeError(f"{last_error}; gave up after retrying {_NEMOTRON_MODEL} and {_FALLBACK_MODEL}")
