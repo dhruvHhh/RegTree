@@ -1,11 +1,14 @@
 """Extracts per-page text from uploaded PDFs: a PySpark job, or a plain loop when USE_SPARK=false."""
 
+import io
+import itertools
 import json
 import os
 import sys
 import threading
 
 import pdfplumber
+from pdfminer.pdfpage import PDFPage
 
 # Must be set before SparkSession is created, otherwise the JVM launches workers
 # with whatever "python" is on PATH instead of this venv's interpreter.
@@ -36,6 +39,15 @@ def _get_spark():
             .getOrCreate()
         )
     return _spark
+
+
+def exceeds_page_limit(data: bytes, limit: int) -> bool:
+    """True if the PDF has over `limit` pages; walks the real page tree and stops once it knows."""
+    try:
+        with pdfplumber.open(io.BytesIO(data)) as pdf:
+            return next(itertools.islice(PDFPage.create_pages(pdf.doc), limit, None), None) is not None
+    except Exception:
+        return False  # unreadable PDFs are reported per document by extraction
 
 
 def _extract_single_pdf(row: dict) -> dict:

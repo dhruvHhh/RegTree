@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listDocuments, uploadDocuments, getDocumentStatus } from "../api";
+import { listDocuments, uploadDocuments, uploadErrorMessage, getDocumentStatus } from "../api";
 import type { DocumentSummary } from "../api";
 import UploadZone from "./UploadZone";
 import DocumentList from "./DocumentList";
@@ -55,8 +55,8 @@ export default function DocumentsPage() {
       try {
         await uploadDocuments(files);
         await refresh();
-      } catch {
-        setUploadError("Upload failed — please try again.");
+      } catch (err) {
+        setUploadError(uploadErrorMessage(err));
       }
     },
     [refresh],

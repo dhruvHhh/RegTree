@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileSearch, FileText, Info, ListTree, Upload } from "lucide-react";
-import { listDocuments, loadSampleDocuments, uploadDocuments } from "../api";
+import { listDocuments, loadSampleDocuments, uploadDocuments, uploadErrorMessage } from "../api";
 import type { DocumentSummary, Source } from "../api";
 import UploadZone from "./UploadZone";
 import type { UploadZoneHandle } from "./UploadZone";
@@ -30,8 +30,8 @@ export default function HomeView() {
       try {
         await uploadDocuments(files);
         navigate("/documents");
-      } catch {
-        setUploadError("Upload failed — please try again.");
+      } catch (err) {
+        setUploadError(uploadErrorMessage(err));
       }
     },
     [navigate],

@@ -15,13 +15,14 @@ import json
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, File, HTTPException, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from ingest.spark_job import extract_text_parallel
+from ingest.spark_job import exceeds_page_limit, extract_text_parallel
 from rag.pageindex_builder import build_tree
 from rag.retrieval import answer_question
 from session import get_session_id
@@ -68,6 +69,9 @@ def _custom_openapi() -> dict:
 
 
 app.openapi = _custom_openapi
+
+_MAX_UPLOAD_MB = 10
+_MAX_UPLOAD_PAGES = 60
 
 # Everything lives under /api so it can't collide with React Router routes like /documents.
 api = APIRouter(prefix="/api")
@@ -123,6 +127,13 @@ def _process_upload(session_id: str, uploaded: list[dict]) -> None:
             set_document_status(session_id, doc_id, "failed", str(exc))
 
 
+def _reject_upload(filename: str | None) -> HTTPException:
+    return HTTPException(
+        status_code=413,
+        detail=f"{filename} is too large. Please upload a PDF under {_MAX_UPLOAD_MB} MB / {_MAX_UPLOAD_PAGES} pages.",
+    )
+
+
 @api.post("/documents")
 async def upload_documents(
     background_tasks: BackgroundTasks,
@@ -130,15 +141,26 @@ async def upload_documents(
     session_id: str = Depends(get_session_id),
 ):
     """Save uploaded PDFs as "processing" and process them in the background."""
+    # Check the whole batch first, so a rejected file leaves nothing saved or processing.
+    # f.size comes from the parsed form, so an oversized file is never read into memory.
+    contents = []
+    for f in files:
+        if f.size > _MAX_UPLOAD_MB * 1024 * 1024:
+            raise _reject_upload(f.filename)
+        data = await f.read()
+        if await run_in_threadpool(exceeds_page_limit, data, _MAX_UPLOAD_PAGES):
+            raise _reject_upload(f.filename)
+        contents.append(data)
+
     raw_dir = raw_pdfs_dir(session_id)
     os.makedirs(raw_dir, exist_ok=True)
 
     uploaded = []
-    for f in files:
+    for f, data in zip(files, contents):
         doc_id = str(uuid.uuid4())
         pdf_path = os.path.join(raw_dir, f"{doc_id}.pdf")
         with open(pdf_path, "wb") as out:
-            out.write(await f.read())
+            out.write(data)
         record_document(session_id, doc_id, f.filename)
         uploaded.append({"doc_id": doc_id, "filename": f.filename, "pdf_path": pdf_path})
 

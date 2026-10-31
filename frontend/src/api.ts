@@ -43,10 +43,18 @@ export interface QueryResult {
   sources: Source[];
 }
 
+// A 413's message comes from the backend and is written to be shown as-is.
+class UploadRejectedError extends Error {}
+
+export function uploadErrorMessage(err: unknown): string {
+  return err instanceof UploadRejectedError ? err.message : "Upload failed — please try again.";
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, { credentials: "include", ...init });
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
+    if (res.status === 413) throw new UploadRejectedError(JSON.parse(detail).detail);
     throw new Error(`${res.status} ${res.statusText}${detail ? `: ${detail}` : ""}`);
   }
   return res.json() as Promise<T>;
