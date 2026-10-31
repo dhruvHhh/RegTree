@@ -1,4 +1,4 @@
-"""PySpark job that extracts per-page text from uploaded PDFs in parallel."""
+"""Extracts per-page text from uploaded PDFs: a PySpark job, or a plain loop when USE_SPARK=false."""
 
 import json
 import os
@@ -6,7 +6,6 @@ import sys
 import threading
 
 import pdfplumber
-from pyspark.sql import SparkSession
 
 # Must be set before SparkSession is created, otherwise the JVM launches workers
 # with whatever "python" is on PATH instead of this venv's interpreter.
@@ -16,12 +15,20 @@ os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
 # Spark allows one SparkContext per process and uploads can run concurrently on FastAPI's
 # thread pool, so keep one long-lived session and serialize jobs with a lock.
 _spark_lock = threading.Lock()
-_spark: SparkSession | None = None
+_spark = None
 
 
-def _get_spark() -> SparkSession:
+def _use_spark() -> bool:
+    # Read per call: this module is imported before rag.config loads backend/.env.
+    return os.environ.get("USE_SPARK", "true").strip().lower() != "false"
+
+
+def _get_spark():
     global _spark
     if _spark is None:
+        # Imported here so USE_SPARK=false never loads pyspark, which the hosted image doesn't install.
+        from pyspark.sql import SparkSession
+
         _spark = (
             SparkSession.builder
             .master("local[*]")
@@ -32,7 +39,7 @@ def _get_spark() -> SparkSession:
 
 
 def _extract_single_pdf(row: dict) -> dict:
-    """Spark map function; returns errors instead of raising so one bad PDF can't fail the job."""
+    """Extract one PDF; returns errors instead of raising so one bad PDF can't fail the job."""
     doc_id = row["doc_id"]
     try:
         pages = []
@@ -52,10 +59,13 @@ def extract_text_parallel(session_id: str, files: list[dict]) -> dict[str, str]:
     out_dir = text_dir(session_id)
     os.makedirs(out_dir, exist_ok=True)
 
-    with _spark_lock:
-        spark = _get_spark()
-        rdd = spark.sparkContext.parallelize(files, numSlices=len(files))
-        results = rdd.map(_extract_single_pdf).collect()
+    if _use_spark():
+        with _spark_lock:
+            spark = _get_spark()
+            rdd = spark.sparkContext.parallelize(files, numSlices=len(files))
+            results = rdd.map(_extract_single_pdf).collect()
+    else:
+        results = [_extract_single_pdf(f) for f in files]
 
     # Disk writes don't need Spark, so they run outside the lock.
     errors: dict[str, str] = {}
