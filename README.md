@@ -74,7 +74,7 @@ I deliberately left the LLM calls out of the parallelism, since those are rate-l
 | Layer | Tools |
 |---|---|
 | Distributed ingestion | PySpark (local mode), pdfplumber |
-| Tree building | Nemotron 3 Super via OpenRouter (free tier); retries empty/invalid replies and falls back to a second free model |
+| Tree building | Nemotron 3.5 Super VL via OpenRouter (free tier); retries empty/invalid replies and falls back to Dots3-Note Preview, a free model from a different provider |
 | Retrieval / Q&A | GPT-OSS 120B (via Groq, free tier) |
 | Backend API | FastAPI, session-cookie scoping (no accounts/login) |
 | Frontend | React, TypeScript, Tailwind CSS, Aceternity UI, shadcn (Base UI) |
