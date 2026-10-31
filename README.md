@@ -41,7 +41,7 @@ This makes it a better fit for precision-critical domains — legal, regulatory,
 flowchart TD
     A[Uploaded PDFs] --> B[PySpark: parallel text extraction]
     B --> C[Per-document text cache]
-    C --> D[Nemotron 3 Super via OpenRouter:<br/>builds hierarchical section tree]
+    C --> D[Nemotron 3.5 Super VL via OpenRouter:<br/>builds hierarchical section tree]
     D --> E[Tree + text storage]
     E --> F[Groq: picks relevant section]
     F --> G[Groq: answers from that section only]
